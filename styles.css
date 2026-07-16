@@ -1,25 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-}
-
-#app {
-    width: 100%;
-    max-width: 600px;
-    position: relative;
-}
-
 /* Settings Lock Button */
 .settings-lock-btn {
     position: fixed;
@@ -36,6 +14,9 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .settings-lock-btn:hover {
@@ -169,8 +150,10 @@ body {
 .jar-container {
     display: flex;
     justify-content: center;
+    align-items: flex-start;
     margin-bottom: 40px;
     perspective: 1000px;
+    position: relative;
 }
 
 .mason-jar {
@@ -190,6 +173,19 @@ body {
     }
 }
 
+/* Jar Shadow */
+.jar-shadow {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    height: 40px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(8px);
+}
+
 /* Jar Lid */
 .jar-lid {
     position: absolute;
@@ -199,17 +195,24 @@ body {
     width: 220px;
     text-align: center;
     z-index: 10;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.jar-lid.open {
+    top: -120px;
+    opacity: 0.7;
+    transform: translateX(-50%) rotateZ(-25deg);
 }
 
 .lid-top {
     width: 220px;
     height: 40px;
-    background: linear-gradient(180deg, #FFD700 0%, #D4AF37 50%, #B8860B 100%);
+    background: linear-gradient(180deg, #FFB6D9 0%, #FF9AD1 50%, #FF85C8 100%);
     border-radius: 10px 10px 0 0;
     box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.6),
                 0 8px 15px rgba(0, 0, 0, 0.25),
                 inset 0 -2px 5px rgba(0, 0, 0, 0.1);
-    border: 2px solid #B8860B;
+    border: 2px solid #FF7ABF;
     position: relative;
 }
 
@@ -221,20 +224,20 @@ body {
     transform: translateX(-50%);
     width: 40px;
     height: 15px;
-    background: linear-gradient(180deg, #FFD700 0%, #DAA520 100%);
+    background: linear-gradient(180deg, #FFB6D9 0%, #FF9AD1 100%);
     border-radius: 50%;
     box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.4);
 }
 
 .lid-text {
-    background: linear-gradient(180deg, #FFD700 0%, #D4AF37 100%);
+    background: linear-gradient(180deg, #FFB6D9 0%, #FF9AD1 100%);
     padding: 10px 20px;
     font-size: 15px;
     font-weight: bold;
-    color: #333;
-    border: 2px solid #B8860B;
+    color: #fff;
+    border: 2px solid #FF7ABF;
     line-height: 1.4;
-    text-shadow: 0 2px 3px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
 }
 
 .lid-ring {
@@ -868,7 +871,6 @@ body {
 
     .jar-lid {
         width: 180px;
-        top: -35px;
     }
 
     .lid-top {
