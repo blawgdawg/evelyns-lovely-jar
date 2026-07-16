@@ -17,23 +17,37 @@ body {
 #app {
     width: 100%;
     max-width: 600px;
+    position: relative;
 }
 
-/* Lock Screen */
-#lockScreen {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    text-align: center;
-}
-
-.lock-container h1 {
-    color: #333;
-    margin-bottom: 30px;
+/* Settings Lock Button */
+.settings-lock-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
     font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 50;
 }
 
+.settings-lock-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.settings-lock-btn:active {
+    transform: scale(0.95);
+}
+
+/* Password Input */
 .password-input {
     width: 100%;
     padding: 12px 15px;
@@ -49,12 +63,6 @@ body {
     border-color: #667eea;
 }
 
-.hint {
-    color: #999;
-    font-size: 12px;
-    margin-top: 15px;
-}
-
 /* Screen Management */
 .screen {
     display: none;
@@ -67,7 +75,8 @@ body {
     opacity: 1;
 }
 
-#mainScreen {
+#mainScreen,
+#adminSettingsScreen {
     background: white;
     border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
@@ -387,6 +396,33 @@ body {
     box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
 }
 
+.btn-block {
+    width: 100%;
+    display: block;
+}
+
+.btn-icon {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-icon:hover {
+    background: #e8e8e8;
+}
+
+.btn-icon.btn-danger {
+    background: #ffe5e5;
+}
+
+.btn-icon.btn-danger:hover {
+    background: #ffcccc;
+}
+
 /* Gallery Grid */
 .gallery-grid {
     display: grid;
@@ -482,6 +518,80 @@ body {
     margin-bottom: 10px;
 }
 
+/* Manage Notes List */
+.manage-notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.manage-note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s;
+}
+
+.manage-note-item:hover {
+    background: #f5f5f5;
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.manage-note-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.manage-note-color {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.manage-note-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.manage-note-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+}
+
+.manage-note-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.manage-note-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.manage-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.admin-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
 /* Modal */
 .modal {
     display: none;
@@ -512,6 +622,10 @@ body {
     flex-direction: column;
     max-height: 90vh;
     overflow-y: auto;
+}
+
+.settings-lock-content {
+    max-width: 400px;
 }
 
 .modal-header {
@@ -588,30 +702,6 @@ body {
     min-height: 200px;
 }
 
-.color-options {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.color-btn {
-    width: 50px;
-    height: 50px;
-    border: 3px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.color-btn:hover {
-    transform: scale(1.1);
-}
-
-.color-btn.selected {
-    border-color: #333;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
-}
-
 /* Note Viewer */
 .viewer-date {
     font-size: 12px;
@@ -627,21 +717,18 @@ body {
     font-size: 15px;
 }
 
-/* Cutoff Date Warning */
-.cutoff-warning {
-    background: #fff3cd;
-    border: 2px solid #ffc107;
-    color: #856404;
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: 13px;
-}
-
 /* Responsive Design */
 @media (max-width: 600px) {
     #app {
         max-width: 100%;
+    }
+
+    .settings-lock-btn {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
     }
 
     .mason-jar {
@@ -685,6 +772,16 @@ body {
     .btn {
         width: 100%;
     }
+
+    .manage-note-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .manage-note-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }
 
 /* Scrollbar Styling */
@@ -706,17 +803,6 @@ body {
     background: #764ba2;
 }
 
-/* Loading and Transitions */
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loading {
-    animation: spin 1s linear infinite;
-}
-
 /* Print Styles */
 @media print {
     body {
@@ -724,6 +810,10 @@ body {
     }
 
     .navbar {
+        display: none;
+    }
+
+    .settings-lock-btn {
         display: none;
     }
 }
