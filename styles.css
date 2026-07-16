@@ -176,7 +176,7 @@
 /* Jar Shadow */
 .jar-shadow {
     position: absolute;
-    bottom: -30px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     width: 240px;
