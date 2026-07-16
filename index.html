@@ -39,8 +39,14 @@
         <div id="mainScreen" class="screen active">
             <!-- Navigation Bar -->
             <nav class="navbar">
-                <button class="nav-btn active" onclick="switchTab('jar')">🫙 Jar</button>
-                <button class="nav-btn" onclick="switchTab('gallery')">🖼️ Gallery</button>
+                <button class="nav-btn active" onclick="switchTab('jar')">
+                    <span class="nav-emoji">🫙</span>
+                    <span class="nav-text">Jar</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('gallery')">
+                    <span class="nav-emoji">🖼️</span>
+                    <span class="nav-text">Gallery</span>
+                </button>
             </nav>
 
             <!-- Jar Tab -->
@@ -67,6 +73,9 @@
                 <!-- Current Date Display -->
                 <div class="date-display" id="dateDisplay"></div>
 
+                <!-- Countdown Display -->
+                <div class="countdown-display" id="countdownDisplay"></div>
+
                 <!-- Today's Note Info -->
                 <div class="note-info">
                     <p id="noteStatus">No note for today yet</p>
@@ -91,9 +100,18 @@
         <div id="adminSettingsScreen" class="screen">
             <!-- Navigation Bar -->
             <nav class="navbar">
-                <button class="nav-btn active" onclick="switchAdminTab('addNote')">➕ Add Note</button>
-                <button class="nav-btn" onclick="switchAdminTab('manageNotes')">📝 Manage Notes</button>
-                <button class="nav-btn" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+                <button class="nav-btn active" onclick="switchAdminTab('addNote')">
+                    <span class="nav-emoji">➕</span>
+                    <span class="nav-text">Add Note</span>
+                </button>
+                <button class="nav-btn" onclick="switchAdminTab('manageNotes')">
+                    <span class="nav-emoji">📝</span>
+                    <span class="nav-text">Manage</span>
+                </button>
+                <button class="nav-btn" onclick="switchAdminTab('settings')">
+                    <span class="nav-emoji">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </button>
             </nav>
 
             <!-- Add Note Tab -->
