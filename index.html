@@ -8,33 +8,6 @@
 </head>
 <body>
     <div id="app">
-        <!-- Settings Lock Button (Always Visible) -->
-        <div id="settingsLockButton" class="settings-lock-btn" onclick="openSettingsLock()">
-            ⚙️
-        </div>
-
-        <!-- Settings Lock Modal -->
-        <div id="settingsLockModal" class="modal">
-            <div class="modal-content settings-lock-content">
-                <div class="modal-header">
-                    <h2>🔐 Admin Access</h2>
-                    <button onclick="closeSettingsLock()" class="close-btn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <input 
-                        type="password" 
-                        id="adminPasswordInput" 
-                        placeholder="Enter admin password" 
-                        class="password-input"
-                    >
-                </div>
-                <div class="modal-footer">
-                    <button onclick="closeSettingsLock()" class="btn btn-secondary">Cancel</button>
-                    <button onclick="verifyAdminPassword()" class="btn btn-primary">Unlock</button>
-                </div>
-            </div>
-        </div>
-
         <!-- Main App Screen (Evelyn's View) -->
         <div id="mainScreen" class="screen active">
             <!-- Navigation Bar -->
@@ -96,91 +69,6 @@
             </div>
         </div>
 
-        <!-- Admin Settings Screen (Your Control Panel) -->
-        <div id="adminSettingsScreen" class="screen">
-            <!-- Navigation Bar -->
-            <nav class="navbar">
-                <button class="nav-btn active" onclick="switchAdminTab('addNote')">
-                    <span class="nav-emoji">➕</span>
-                    <span class="nav-text">Add Note</span>
-                </button>
-                <button class="nav-btn" onclick="switchAdminTab('manageNotes')">
-                    <span class="nav-emoji">📝</span>
-                    <span class="nav-text">Manage</span>
-                </button>
-                <button class="nav-btn" onclick="switchAdminTab('settings')">
-                    <span class="nav-emoji">⚙️</span>
-                    <span class="nav-text">Settings</span>
-                </button>
-            </nav>
-
-            <!-- Add Note Tab -->
-            <div id="addNoteTab" class="tab-content active">
-                <h2>✍️ Add a Note</h2>
-                <div class="admin-form">
-                    <div class="form-group">
-                        <label for="noteDate">Date:</label>
-                        <input type="date" id="noteDate" class="form-input" max="2027-01-18">
-                    </div>
-                    <div class="form-group">
-                        <label for="noteTitle">Title:</label>
-                        <input type="text" id="noteTitle" placeholder="Give your note a title" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label for="noteColor">Note Color:</label>
-                        <input type="color" id="noteColor" class="color-picker" value="#FFE5B4">
-                    </div>
-                    <div class="form-group">
-                        <label for="noteContent">Your Thoughts:</label>
-                        <textarea id="noteContent" placeholder="Write your feelings, thoughts, or memories..." class="form-textarea"></textarea>
-                    </div>
-                    <button onclick="saveNote()" class="btn btn-primary btn-block">Save Note</button>
-                </div>
-            </div>
-
-            <!-- Manage Notes Tab -->
-            <div id="manageNotesTab" class="tab-content">
-                <h2>📝 Manage Notes</h2>
-                <div id="manageNotesList" class="manage-notes-list">
-                    <!-- Notes will be listed here -->
-                </div>
-            </div>
-
-            <!-- Settings Tab -->
-            <div id="settingsTab" class="tab-content">
-                <h2>⚙️ Settings</h2>
-                <div class="settings-container">
-                    <div class="setting-item">
-                        <label for="themeColor">Jar Color:</label>
-                        <select id="themeColor" onchange="changeJarColor()" class="settings-input">
-                            <option value="default">Classic Clear</option>
-                            <option value="blue">Ocean Blue</option>
-                            <option value="green">Sage Green</option>
-                            <option value="pink">Blush Pink</option>
-                            <option value="amber">Golden Amber</option>
-                        </select>
-                    </div>
-
-                    <div class="setting-item">
-                        <label for="accentColor">Accent Color:</label>
-                        <input type="color" id="accentColor" onchange="changeAccentColor()" class="color-picker">
-                    </div>
-
-                    <div class="setting-item">
-                        <button onclick="exportData()" class="btn btn-secondary btn-block">💾 Export Data</button>
-                    </div>
-
-                    <div class="setting-item">
-                        <button onclick="clearAllData()" class="btn btn-danger btn-block">🗑️ Clear All Data</button>
-                    </div>
-
-                    <div class="setting-item">
-                        <button onclick="exitAdmin()" class="btn btn-danger btn-block">🚪 Exit Admin</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Note Viewer Modal -->
         <div id="noteViewerModal" class="modal">
             <div class="modal-content note-viewer">
@@ -199,6 +87,7 @@
         </div>
     </div>
 
+    <script src="notes-data.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
