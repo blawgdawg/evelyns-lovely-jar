@@ -1,5 +1,5 @@
 // Constants
-const CUTOFF_DATE = new Date('2027-01-18');
+const CUTOFF_DATE = new Date('2027-01-28');
 const PASSWORD_KEY = 'jar_password';
 const NOTES_KEY = 'jar_notes';
 const JAR_COLOR_KEY = 'jar_color';
@@ -149,7 +149,7 @@ function updateCountdown() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const cutoffDate = new Date('2027-01-18');
+    const cutoffDate = new Date('2027-01-28');
     cutoffDate.setHours(0, 0, 0, 0);
     
     const daysRemaining = Math.ceil((cutoffDate - today) / (1000 * 60 * 60 * 24));
@@ -157,7 +157,7 @@ function updateCountdown() {
     const countdownEl = document.getElementById('countdownDisplay');
     if (countdownEl) {
         if (daysRemaining > 0) {
-            countdownEl.textContent = `⏳ The jar seals in ${daysRemaining} days (January 18th, 2027)`;
+            countdownEl.textContent = `⏳ The jar seals in ${daysRemaining} days (January 28th, 2027)`;
         } else if (daysRemaining === 0) {
             countdownEl.textContent = '🔒 The jar seals TODAY!';
         } else {
@@ -219,7 +219,7 @@ function saveNote() {
     // Check cutoff date
     const noteDate = parseDate(date);
     if (noteDate > CUTOFF_DATE) {
-        alert('You cannot add notes after January 18th, 2027');
+        alert('You cannot add notes after January 28th, 2027');
         return;
     }
     
