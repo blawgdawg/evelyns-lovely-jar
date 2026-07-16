@@ -9,7 +9,7 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: 3px solid white;
     color: white;
-    font-size: 28px;
+    font-size: 24px;
     cursor: pointer;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
@@ -17,6 +17,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
+    padding: 0;
+    text-align: center;
 }
 
 .settings-lock-btn:hover {
@@ -151,7 +154,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
     perspective: 1000px;
     position: relative;
 }
@@ -160,7 +163,7 @@
     position: relative;
     width: 280px;
     height: 380px;
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.12));
     animation: jarFloat 3s ease-in-out infinite;
 }
 
@@ -176,14 +179,26 @@
 /* Jar Shadow */
 .jar-shadow {
     position: absolute;
-    bottom: -30px;
+    bottom: -15px;
     left: 50%;
     transform: translateX(-50%);
-    width: 240px;
-    height: 40px;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+    width: 220px;
+    height: 22px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.38) 0%, transparent 70%);
     border-radius: 50%;
-    filter: blur(8px);
+    filter: blur(7px);
+    animation: shadowPulse 3s ease-in-out infinite;
+}
+
+@keyframes shadowPulse {
+    0%, 100% {
+        transform: translateX(-50%) scaleX(1.0);
+        opacity: 0.45;
+    }
+    50% {
+        transform: translateX(-50%) scaleX(0.72);
+        opacity: 0.2;
+    }
 }
 
 /* Jar Lid */
@@ -207,11 +222,11 @@
 .lid-top {
     width: 220px;
     height: 40px;
-    background: linear-gradient(180deg, #FFB6D9 0%, #FF9AD1 50%, #FF85C8 100%);
+    background: linear-gradient(180deg, #FFCEE6 0%, #FFB6D9 40%, #FF9AD1 80%, #FF85C8 100%);
     border-radius: 10px 10px 0 0;
-    box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.6),
-                0 8px 15px rgba(0, 0, 0, 0.25),
-                inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 4px 10px rgba(255, 255, 255, 0.7),
+                0 8px 15px rgba(0, 0, 0, 0.2),
+                inset 0 -2px 5px rgba(0, 0, 0, 0.08);
     border: 2px solid #FF7ABF;
     position: relative;
 }
@@ -261,40 +276,44 @@
     width: 220px;
     height: 300px;
     background: linear-gradient(90deg, 
-        rgba(180, 220, 255, 0.4) 0%, 
-        rgba(255, 255, 255, 0.9) 50%, 
-        rgba(180, 220, 255, 0.4) 100%);
-    border: 4px solid #A8D8FF;
+        rgba(150, 205, 255, 0.55) 0%, 
+        rgba(235, 250, 255, 0.95) 30%, 
+        rgba(255, 255, 255, 1.0) 50%, 
+        rgba(235, 250, 255, 0.95) 70%, 
+        rgba(150, 205, 255, 0.55) 100%);
+    border: 3px solid rgba(168, 216, 255, 0.75);
     border-radius: 25px 25px 50px 50px;
-    box-shadow: inset -15px 0 40px rgba(0, 0, 0, 0.08),
-                inset 15px 0 40px rgba(255, 255, 255, 0.6),
-                0 15px 40px rgba(0, 0, 0, 0.2),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    box-shadow: inset -20px 0 50px rgba(0, 0, 0, 0.06),
+                inset 20px 0 50px rgba(255, 255, 255, 0.65),
+                inset 0 -30px 60px rgba(100, 160, 220, 0.08),
+                0 20px 50px rgba(0, 0, 0, 0.14),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.85);
     overflow: hidden;
-    position: relative;
 }
 
 .jar-body::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.4) 100%);
+    top: 15px;
+    left: 12px;
+    width: 32px;
+    height: 130px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 50%;
+    filter: blur(7px);
     pointer-events: none;
 }
 
 .jar-body::after {
     content: '';
     position: absolute;
-    bottom: 20px;
-    left: 10px;
-    width: 30px;
-    height: 80px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+    top: 8px;
+    right: 18px;
+    width: 16px;
+    height: 60px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, transparent 100%);
     border-radius: 50%;
-    filter: blur(8px);
+    filter: blur(4px);
     pointer-events: none;
 }
 
@@ -422,18 +441,6 @@
     border-left: 4px solid #667eea;
     border-radius: 8px;
     letter-spacing: 0.3px;
-}
-
-/* Note Info */
-.note-info {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    border-left: 4px solid #667eea;
-    padding: 14px 16px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 15px;
-    color: #555;
-    font-weight: 500;
 }
 
 /* Action Buttons */

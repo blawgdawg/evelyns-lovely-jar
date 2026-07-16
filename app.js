@@ -190,15 +190,10 @@ function parseDate(dateStr) {
 
 function updateNoteStatus() {
     const todayNote = getTodayNote();
-    const noteStatusEl = document.getElementById('noteStatus');
     const viewTodayBtn = document.getElementById('viewTodayBtn');
     
-    if (todayNote) {
-        noteStatusEl.textContent = `✨ Today's note: "${todayNote.title}"`;
-        viewTodayBtn.style.display = 'inline-block';
-    } else {
-        noteStatusEl.textContent = '📝 No note for today yet. Check back tomorrow!';
-        viewTodayBtn.style.display = 'none';
+    if (viewTodayBtn) {
+        viewTodayBtn.style.display = todayNote ? 'inline-block' : 'none';
     }
 }
 
