@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evelyn's Lovely Jar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Lock Screen -->
+        <div id="lockScreen" class="screen active">
+            <div class="lock-container">
+                <h1>🔐 Enter Password</h1>
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="Enter password" 
+                    class="password-input"
+                >
+                <button onclick="checkPassword()" class="btn btn-primary">Unlock</button>
+                <p class="hint">First time? Set a password in settings</p>
+            </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="mainScreen" class="screen">
+            <!-- Navigation Bar -->
+            <nav class="navbar">
+                <button class="nav-btn active" onclick="switchTab('jar')">🫙 Jar</button>
+                <button class="nav-btn" onclick="switchTab('gallery')">🖼️ Gallery</button>
+                <button class="nav-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+            </nav>
+
+            <!-- Jar Tab -->
+            <div id="jarTab" class="tab-content active">
+                <div class="jar-container">
+                    <!-- Mason Jar -->
+                    <div class="mason-jar">
+                        <!-- Jar Lid -->
+                        <div class="jar-lid">
+                            <div class="lid-top"></div>
+                            <div class="lid-text">Evelyn's<br>Lovely Jar</div>
+                            <div class="lid-ring"></div>
+                        </div>
+
+                        <!-- Jar Body -->
+                        <div class="jar-body">
+                            <div id="notesContainer" class="notes-container">
+                                <!-- Notes will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Date Display -->
+                <div class="date-display" id="dateDisplay"></div>
+
+                <!-- Today's Note Info -->
+                <div class="note-info">
+                    <p id="noteStatus">No note for today yet</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button onclick="openNoteEditor()" class="btn btn-primary">✍️ Add Note</button>
+                    <button onclick="openTodayNote()" class="btn btn-secondary" id="viewTodayBtn" style="display: none;">📖 View Today's Note</button>
+                </div>
+            </div>
+
+            <!-- Gallery Tab -->
+            <div id="galleryTab" class="tab-content">
+                <h2>📚 Note Gallery</h2>
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- Past notes will be displayed here -->
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <h2>⚙️ Settings</h2>
+                <div class="settings-container">
+                    <div class="setting-item">
+                        <label for="passwordSetting">Set Password:</label>
+                        <input 
+                            type="password" 
+                            id="passwordSetting" 
+                            placeholder="Enter new password"
+                            class="settings-input"
+                        >
+                        <button onclick="setPassword()" class="btn btn-primary">Save Password</button>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="themeColor">Jar Color:</label>
+                        <select id="themeColor" onchange="changeJarColor()" class="settings-input">
+                            <option value="default">Classic Clear</option>
+                            <option value="blue">Ocean Blue</option>
+                            <option value="green">Sage Green</option>
+                            <option value="pink">Blush Pink</option>
+                            <option value="amber">Golden Amber</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="accentColor">Accent Color:</label>
+                        <input type="color" id="accentColor" onchange="changeAccentColor()" class="color-picker">
+                    </div>
+
+                    <div class="setting-item">
+                        <button onclick="exportData()" class="btn btn-secondary">💾 Export Data</button>
+                        <button onclick="clearAllData()" class="btn btn-danger">🗑️ Clear All Data</button>
+                        <button onclick="logout()" class="btn btn-danger">🔓 Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Note Editor Modal -->
+        <div id="noteEditorModal" class="modal">
+            <div class="modal-content note-editor">
+                <div class="modal-header">
+                    <h2>✍️ Add a Note</h2>
+                    <button onclick="closeNoteEditor()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="noteDate">Date:</label>
+                        <input type="date" id="noteDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="noteTitle">Title:</label>
+                        <input type="text" id="noteTitle" placeholder="Give your note a title" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="noteColor">Note Color:</label>
+                        <div class="color-options">
+                            <input type="color" id="noteColor" class="color-picker" value="#FFE5B4">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="noteContent">Your Thoughts:</label>
+                        <textarea id="noteContent" placeholder="Write your feelings, thoughts, or memories..." class="form-textarea"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeNoteEditor()" class="btn btn-secondary">Cancel</button>
+                    <button onclick="saveNote()" class="btn btn-primary">Save Note</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Note Viewer Modal -->
+        <div id="noteViewerModal" class="modal">
+            <div class="modal-content note-viewer">
+                <div class="modal-header">
+                    <h2 id="viewerTitle"></h2>
+                    <button onclick="closeNoteViewer()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="viewerDate" class="viewer-date"></p>
+                    <div id="viewerContent" class="viewer-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="deleteCurrentNote()" class="btn btn-danger">🗑️ Delete</button>
+                    <button onclick="closeNoteViewer()" class="btn btn-primary">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
