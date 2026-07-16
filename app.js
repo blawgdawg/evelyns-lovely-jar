@@ -1,41 +1,42 @@
 // Constants
 const CUTOFF_DATE = new Date('2027-01-18');
-const ADMIN_PASSWORD = 'Cougnnf8';
+const PASSWORD_KEY = 'jar_password';
 const NOTES_KEY = 'jar_notes';
 const JAR_COLOR_KEY = 'jar_color';
 const ACCENT_COLOR_KEY = 'accent_color';
 
 let currentViewingNote = null;
 let allNotes = [];
-let isAdminMode = false;
+let adminMode = false;
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
     updateDateDisplay();
+    updateCountdown();
     updateNoteStatus();
     renderNotes();
     renderGallery();
     
     // Set default date in note editor to today
-    setDefaultDate();
+    document.getElementById('noteDate').valueAsDate = new Date();
     
     // Apply saved theme
     applyTheme();
+    
+    // Update countdown every minute
+    setInterval(() => {
+        updateCountdown();
+        renderNotes();
+        renderGallery();
+    }, 60000);
 });
 
-function setDefaultDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    document.getElementById('noteDate').value = `${year}-${month}-${day}`;
-}
-
-// ============== ADMIN ACCESS ==============
+// ============== SETTINGS LOCK & ADMIN ACCESS ==============
 
 function openSettingsLock() {
     document.getElementById('settingsLockModal').classList.add('active');
+    document.getElementById('adminPasswordInput').value = '';
     document.getElementById('adminPasswordInput').focus();
 }
 
@@ -46,29 +47,42 @@ function closeSettingsLock() {
 
 function verifyAdminPassword() {
     const input = document.getElementById('adminPasswordInput').value;
+    const savedPassword = localStorage.getItem(PASSWORD_KEY);
     
     if (!input) {
         alert('Please enter a password');
         return;
     }
     
-    if (input === ADMIN_PASSWORD) {
-        isAdminMode = true;
+    if (!savedPassword) {
+        // First time setup
+        if (input.length < 4) {
+            alert('Password must be at least 4 characters');
+            return;
+        }
+        localStorage.setItem(PASSWORD_KEY, input);
+        enterAdminMode();
         closeSettingsLock();
-        document.getElementById('mainScreen').classList.remove('active');
-        document.getElementById('adminSettingsScreen').classList.add('active');
-        loadManageNotes();
+    } else if (input === savedPassword) {
+        enterAdminMode();
+        closeSettingsLock();
     } else {
-        alert('❌ Incorrect password');
+        alert('Incorrect password');
     }
+}
+
+function enterAdminMode() {
+    adminMode = true;
+    document.getElementById('mainScreen').classList.remove('active');
+    document.getElementById('adminSettingsScreen').classList.add('active');
+    renderManageNotes();
 }
 
 function exitAdmin() {
     if (confirm('Exit admin mode?')) {
-        isAdminMode = false;
+        adminMode = false;
         document.getElementById('adminSettingsScreen').classList.remove('active');
         document.getElementById('mainScreen').classList.add('active');
-        switchTab('jar');
         renderNotes();
         renderGallery();
     }
@@ -91,9 +105,7 @@ function switchTab(tabName) {
     document.getElementById(tabName + 'Tab').classList.add('active');
     
     // Add active class to clicked button
-    if (event) {
-        event.target.classList.add('active');
-    }
+    event.target.closest('.nav-btn').classList.add('active');
     
     // Refresh gallery when switching to gallery tab
     if (tabName === 'gallery') {
@@ -116,12 +128,11 @@ function switchAdminTab(tabName) {
     document.getElementById(tabName + 'Tab').classList.add('active');
     
     // Add active class to clicked button
-    if (event) {
-        event.target.classList.add('active');
-    }
+    event.target.closest('.nav-btn').classList.add('active');
     
+    // Refresh manage notes when switching to that tab
     if (tabName === 'manageNotes') {
-        loadManageNotes();
+        renderManageNotes();
     }
 }
 
@@ -132,6 +143,27 @@ function updateDateDisplay() {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const dateString = today.toLocaleDateString('en-US', options);
     document.getElementById('dateDisplay').textContent = `📅 ${dateString}`;
+}
+
+function updateCountdown() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const cutoffDate = new Date('2027-01-18');
+    cutoffDate.setHours(0, 0, 0, 0);
+    
+    const daysRemaining = Math.ceil((cutoffDate - today) / (1000 * 60 * 60 * 24));
+    
+    const countdownEl = document.getElementById('countdownDisplay');
+    if (countdownEl) {
+        if (daysRemaining > 0) {
+            countdownEl.textContent = `⏳ The jar seals in ${daysRemaining} days (January 18th, 2027)`;
+        } else if (daysRemaining === 0) {
+            countdownEl.textContent = '🔒 The jar seals TODAY!';
+        } else {
+            countdownEl.textContent = '🔐 The jar has been sealed. No new notes can be added.';
+        }
+    }
 }
 
 function getNoteForDate(date) {
@@ -165,12 +197,12 @@ function updateNoteStatus() {
         noteStatusEl.textContent = `✨ Today's note: "${todayNote.title}"`;
         viewTodayBtn.style.display = 'inline-block';
     } else {
-        noteStatusEl.textContent = '📝 No note for today yet.';
+        noteStatusEl.textContent = '📝 No note for today yet. Check back tomorrow!';
         viewTodayBtn.style.display = 'none';
     }
 }
 
-// ============== NOTE EDITOR (ADMIN ONLY) ==============
+// ============== NOTE EDITOR ==============
 
 function saveNote() {
     const date = document.getElementById('noteDate').value;
@@ -187,7 +219,7 @@ function saveNote() {
     // Check cutoff date
     const noteDate = parseDate(date);
     if (noteDate > CUTOFF_DATE) {
-        alert('❌ You cannot add notes after January 18th, 2027. The jar will be sealed!');
+        alert('You cannot add notes after January 18th, 2027');
         return;
     }
     
@@ -223,70 +255,25 @@ function saveNote() {
     renderNotes();
     updateNoteStatus();
     renderGallery();
+    renderManageNotes();
     
     // Clear form
     document.getElementById('noteTitle').value = '';
     document.getElementById('noteContent').value = '';
+    document.getElementById('noteDate').valueAsDate = new Date();
     document.getElementById('noteColor').value = '#FFE5B4';
-    setDefaultDate();
     
-    alert('✅ Note saved! 🎉');
+    alert('Note saved! 🎉');
 }
 
-// ============== MANAGE NOTES (ADMIN ONLY) ==============
-
-function loadManageNotes() {
-    const list = document.getElementById('manageNotesList');
-    list.innerHTML = '';
-    
-    if (allNotes.length === 0) {
-        list.innerHTML = '<div class="manage-empty">No notes yet</div>';
-        return;
-    }
-    
-    allNotes.forEach((note, index) => {
-        const item = document.createElement('div');
-        item.className = 'manage-note-item';
-        
-        const noteDate = parseDate(note.date);
-        const dateString = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        
-        item.innerHTML = `
-            <div class="manage-note-info">
-                <div class="manage-note-color" style="background-color: ${note.color}"></div>
-                <div class="manage-note-details">
-                    <div class="manage-note-title">${note.title}</div>
-                    <div class="manage-note-date">${dateString}</div>
-                </div>
-            </div>
-            <div class="manage-note-actions">
-                <button onclick="editNote(${index})" class="btn-icon">✏️</button>
-                <button onclick="deleteNote(${index})" class="btn-icon btn-danger">🗑️</button>
-            </div>
-        `;
-        
-        list.appendChild(item);
-    });
-}
-
-function editNote(index) {
-    const note = allNotes[index];
-    document.getElementById('noteDate').value = note.date;
-    document.getElementById('noteTitle').value = note.title;
-    document.getElementById('noteContent').value = note.content;
-    document.getElementById('noteColor').value = note.color;
-    switchAdminTab('addNote');
-    document.getElementById('noteContent').focus();
-}
-
-function deleteNote(index) {
-    if (confirm(`Delete note "${allNotes[index].title}"?`)) {
-        allNotes.splice(index, 1);
+function deleteNote(date) {
+    if (confirm('Are you sure you want to delete this note?')) {
+        allNotes = allNotes.filter(note => note.date !== date);
         saveNotes();
         renderNotes();
         updateNoteStatus();
         renderGallery();
-        loadManageNotes();
+        renderManageNotes();
         alert('Note deleted');
     }
 }
@@ -308,16 +295,16 @@ function viewNote(note) {
     noteDate.setHours(0, 0, 0, 0);
     
     if (noteDate > today) {
-        alert('This note is not available yet. It will be accessible on its date! 🎁');
+        alert('This note is not available yet. It will be accessible on its date!');
         return;
     }
     
     currentViewingNote = note;
     document.getElementById('viewerTitle').textContent = note.title;
     
-    const displayDate = parseDate(note.date);
+    const noteDateObj = parseDate(note.date);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const dateString = displayDate.toLocaleDateString('en-US', options);
+    const dateString = noteDateObj.toLocaleDateString('en-US', options);
     document.getElementById('viewerDate').textContent = `📅 ${dateString}`;
     
     document.getElementById('viewerContent').textContent = note.content;
@@ -378,7 +365,7 @@ function renderGallery() {
     });
     
     if (accessibleNotes.length === 0) {
-        gallery.innerHTML = '<div class="gallery-empty">No notes yet. You\'ll see them here as they become available! 🎀</div>';
+        gallery.innerHTML = '<div class="gallery-empty">No notes yet. Check back when notes become available! 🎀</div>';
         return;
     }
     
@@ -398,6 +385,54 @@ function renderGallery() {
         item.onclick = () => viewNote(note);
         gallery.appendChild(item);
     });
+}
+
+// ============== MANAGE NOTES ==============
+
+function renderManageNotes() {
+    const list = document.getElementById('manageNotesList');
+    list.innerHTML = '';
+    
+    if (allNotes.length === 0) {
+        list.innerHTML = '<div class="manage-empty">No notes created yet. Create one in the "Add Note" tab!</div>';
+        return;
+    }
+    
+    allNotes.forEach(note => {
+        const item = document.createElement('div');
+        item.className = 'manage-note-item';
+        
+        const noteDate = parseDate(note.date);
+        const dateString = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        item.innerHTML = `
+            <div class="manage-note-info">
+                <div class="manage-note-color" style="background-color: ${note.color}"></div>
+                <div class="manage-note-details">
+                    <div class="manage-note-title">${note.title}</div>
+                    <div class="manage-note-date">${dateString}</div>
+                </div>
+            </div>
+            <div class="manage-note-actions">
+                <button onclick="editNoteAdmin('${note.date}')" class="btn-icon">✏️ Edit</button>
+                <button onclick="deleteNote('${note.date}')" class="btn-icon btn-danger">🗑️ Delete</button>
+            </div>
+        `;
+        
+        list.appendChild(item);
+    });
+}
+
+function editNoteAdmin(date) {
+    const note = allNotes.find(n => n.date === date);
+    if (note) {
+        document.getElementById('noteDate').value = date;
+        document.getElementById('noteTitle').value = note.title;
+        document.getElementById('noteContent').value = note.content;
+        document.getElementById('noteColor').value = note.color;
+        switchAdminTab('addNote');
+        document.getElementById('noteTitle').focus();
+    }
 }
 
 // ============== THEME CUSTOMIZATION ==============
@@ -460,19 +495,18 @@ function exportData() {
     link.download = `evelyns-jar-backup-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    alert('📥 Data exported successfully!');
 }
 
 function clearAllData() {
-    if (confirm('⚠️ Are you ABSOLUTELY sure? This will delete ALL notes permanently!')) {
-        if (confirm('🚨 Last chance - this cannot be undone!')) {
+    if (confirm('Are you ABSOLUTELY sure? This will delete all notes permanently!')) {
+        if (confirm('Last chance - this cannot be undone!')) {
             localStorage.removeItem(NOTES_KEY);
             allNotes = [];
             renderNotes();
             updateNoteStatus();
             renderGallery();
-            loadManageNotes();
-            alert('🗑️ All data cleared');
+            renderManageNotes();
+            alert('All data cleared');
         }
     }
 }
@@ -480,7 +514,7 @@ function clearAllData() {
 // ============== KEYBOARD SHORTCUTS ==============
 
 document.addEventListener('keydown', (e) => {
-    // Press Enter in admin password field
+    // Press Enter in password field to unlock
     if (e.key === 'Enter' && document.getElementById('settingsLockModal').classList.contains('active')) {
         verifyAdminPassword();
     }
@@ -491,11 +525,3 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('settingsLockModal').classList.remove('active');
     }
 });
-
-// ============== AUTO-REFRESH ==============
-
-// Update time every minute for real-time date changes
-setInterval(() => {
-    renderNotes();
-    renderGallery();
-}, 60000);
