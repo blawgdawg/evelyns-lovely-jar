@@ -8,28 +8,39 @@
 </head>
 <body>
     <div id="app">
-        <!-- Lock Screen -->
-        <div id="lockScreen" class="screen active">
-            <div class="lock-container">
-                <h1>🔐 Enter Password</h1>
-                <input 
-                    type="password" 
-                    id="passwordInput" 
-                    placeholder="Enter password" 
-                    class="password-input"
-                >
-                <button onclick="checkPassword()" class="btn btn-primary">Unlock</button>
-                <p class="hint">First time? Set a password in settings</p>
+        <!-- Settings Lock Button (Always Visible) -->
+        <div id="settingsLockButton" class="settings-lock-btn" onclick="openSettingsLock()">
+            ⚙️
+        </div>
+
+        <!-- Settings Lock Modal -->
+        <div id="settingsLockModal" class="modal">
+            <div class="modal-content settings-lock-content">
+                <div class="modal-header">
+                    <h2>🔐 Admin Access</h2>
+                    <button onclick="closeSettingsLock()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input 
+                        type="password" 
+                        id="adminPasswordInput" 
+                        placeholder="Enter admin password" 
+                        class="password-input"
+                    >
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeSettingsLock()" class="btn btn-secondary">Cancel</button>
+                    <button onclick="verifyAdminPassword()" class="btn btn-primary">Unlock</button>
+                </div>
             </div>
         </div>
 
-        <!-- Main App Screen -->
-        <div id="mainScreen" class="screen">
+        <!-- Main App Screen (Evelyn's View) -->
+        <div id="mainScreen" class="screen active">
             <!-- Navigation Bar -->
             <nav class="navbar">
                 <button class="nav-btn active" onclick="switchTab('jar')">🫙 Jar</button>
                 <button class="nav-btn" onclick="switchTab('gallery')">🖼️ Gallery</button>
-                <button class="nav-btn" onclick="switchTab('settings')">⚙️ Settings</button>
             </nav>
 
             <!-- Jar Tab -->
@@ -63,7 +74,6 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                    <button onclick="openNoteEditor()" class="btn btn-primary">✍️ Add Note</button>
                     <button onclick="openTodayNote()" class="btn btn-secondary" id="viewTodayBtn" style="display: none;">📖 View Today's Note</button>
                 </div>
             </div>
@@ -75,22 +85,53 @@
                     <!-- Past notes will be displayed here -->
                 </div>
             </div>
+        </div>
+
+        <!-- Admin Settings Screen (Your Control Panel) -->
+        <div id="adminSettingsScreen" class="screen">
+            <!-- Navigation Bar -->
+            <nav class="navbar">
+                <button class="nav-btn active" onclick="switchAdminTab('addNote')">➕ Add Note</button>
+                <button class="nav-btn" onclick="switchAdminTab('manageNotes')">📝 Manage Notes</button>
+                <button class="nav-btn" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+            </nav>
+
+            <!-- Add Note Tab -->
+            <div id="addNoteTab" class="tab-content active">
+                <h2>✍️ Add a Note</h2>
+                <div class="admin-form">
+                    <div class="form-group">
+                        <label for="noteDate">Date:</label>
+                        <input type="date" id="noteDate" class="form-input" max="2027-01-18">
+                    </div>
+                    <div class="form-group">
+                        <label for="noteTitle">Title:</label>
+                        <input type="text" id="noteTitle" placeholder="Give your note a title" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="noteColor">Note Color:</label>
+                        <input type="color" id="noteColor" class="color-picker" value="#FFE5B4">
+                    </div>
+                    <div class="form-group">
+                        <label for="noteContent">Your Thoughts:</label>
+                        <textarea id="noteContent" placeholder="Write your feelings, thoughts, or memories..." class="form-textarea"></textarea>
+                    </div>
+                    <button onclick="saveNote()" class="btn btn-primary btn-block">Save Note</button>
+                </div>
+            </div>
+
+            <!-- Manage Notes Tab -->
+            <div id="manageNotesTab" class="tab-content">
+                <h2>📝 Manage Notes</h2>
+                <div id="manageNotesList" class="manage-notes-list">
+                    <!-- Notes will be listed here -->
+                </div>
+            </div>
 
             <!-- Settings Tab -->
             <div id="settingsTab" class="tab-content">
                 <h2>⚙️ Settings</h2>
                 <div class="settings-container">
-                    <div class="setting-item">
-                        <label for="passwordSetting">Set Password:</label>
-                        <input 
-                            type="password" 
-                            id="passwordSetting" 
-                            placeholder="Enter new password"
-                            class="settings-input"
-                        >
-                        <button onclick="setPassword()" class="btn btn-primary">Save Password</button>
-                    </div>
-
                     <div class="setting-item">
                         <label for="themeColor">Jar Color:</label>
                         <select id="themeColor" onchange="changeJarColor()" class="settings-input">
@@ -108,44 +149,16 @@
                     </div>
 
                     <div class="setting-item">
-                        <button onclick="exportData()" class="btn btn-secondary">💾 Export Data</button>
-                        <button onclick="clearAllData()" class="btn btn-danger">🗑️ Clear All Data</button>
-                        <button onclick="logout()" class="btn btn-danger">🔓 Logout</button>
+                        <button onclick="exportData()" class="btn btn-secondary btn-block">💾 Export Data</button>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Note Editor Modal -->
-        <div id="noteEditorModal" class="modal">
-            <div class="modal-content note-editor">
-                <div class="modal-header">
-                    <h2>✍️ Add a Note</h2>
-                    <button onclick="closeNoteEditor()" class="close-btn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="noteDate">Date:</label>
-                        <input type="date" id="noteDate" class="form-input">
+                    <div class="setting-item">
+                        <button onclick="clearAllData()" class="btn btn-danger btn-block">🗑️ Clear All Data</button>
                     </div>
-                    <div class="form-group">
-                        <label for="noteTitle">Title:</label>
-                        <input type="text" id="noteTitle" placeholder="Give your note a title" class="form-input">
+
+                    <div class="setting-item">
+                        <button onclick="exitAdmin()" class="btn btn-danger btn-block">🚪 Exit Admin</button>
                     </div>
-                    <div class="form-group">
-                        <label for="noteColor">Note Color:</label>
-                        <div class="color-options">
-                            <input type="color" id="noteColor" class="color-picker" value="#FFE5B4">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="noteContent">Your Thoughts:</label>
-                        <textarea id="noteContent" placeholder="Write your feelings, thoughts, or memories..." class="form-textarea"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="closeNoteEditor()" class="btn btn-secondary">Cancel</button>
-                    <button onclick="saveNote()" class="btn btn-primary">Save Note</button>
                 </div>
             </div>
         </div>
@@ -162,7 +175,6 @@
                     <div id="viewerContent" class="viewer-content"></div>
                 </div>
                 <div class="modal-footer">
-                    <button onclick="deleteCurrentNote()" class="btn btn-danger">🗑️ Delete</button>
                     <button onclick="closeNoteViewer()" class="btn btn-primary">Close</button>
                 </div>
             </div>
