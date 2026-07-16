@@ -2,11 +2,13 @@
 const CUTOFF_DATE = new Date('2027-01-18');
 const PASSWORD_KEY = 'jar_password';
 const NOTES_KEY = 'jar_notes';
+const VIEWED_NOTES_KEY = 'jar_viewed_notes';
 const JAR_COLOR_KEY = 'jar_color';
 const ACCENT_COLOR_KEY = 'accent_color';
 
 let currentViewingNote = null;
 let allNotes = [];
+let viewedNotes = new Set(); // dates the user has already opened
 let adminMode = false;
 
 // Initialize App
@@ -194,10 +196,15 @@ function updateNoteStatus() {
     const viewTodayBtn = document.getElementById('viewTodayBtn');
     
     if (todayNote) {
-        noteStatusEl.textContent = `✨ Today's note: "${todayNote.title}"`;
-        viewTodayBtn.style.display = 'inline-block';
+        if (viewedNotes.has(todayNote.date)) {
+            noteStatusEl.textContent = `✅ Today's note has been opened! Find it in the Gallery. 🎀`;
+            viewTodayBtn.style.display = 'none';
+        } else {
+            noteStatusEl.textContent = `✨ Today's note: "${todayNote.title}"`;
+            viewTodayBtn.style.display = 'inline-block';
+        }
     } else {
-        noteStatusEl.textContent = '📝 No note for today yet. Check back tomorrow!';
+        noteStatusEl.textContent = '📅 No note available yet today. Check back later!';
         viewTodayBtn.style.display = 'none';
     }
 }
@@ -312,12 +319,22 @@ function viewNote(note) {
     document.getElementById('viewerContent').style.padding = '15px';
     document.getElementById('viewerContent').style.borderRadius = '8px';
     
+    // Mark as viewed the first time the note is opened
+    if (!viewedNotes.has(note.date)) {
+        viewedNotes.add(note.date);
+        saveViewedNotes();
+    }
+    
     document.getElementById('noteViewerModal').classList.add('active');
 }
 
 function closeNoteViewer() {
     document.getElementById('noteViewerModal').classList.remove('active');
     currentViewingNote = null;
+    // Re-render so newly-viewed notes move from jar to gallery
+    renderNotes();
+    renderGallery();
+    updateNoteStatus();
 }
 
 // ============== JAR RENDERING ==============
@@ -329,22 +346,23 @@ function renderNotes() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    allNotes.forEach(note => {
+    // Show notes that are accessible (date ≤ today) AND not yet viewed
+    const jarNotes = allNotes.filter(note => {
         const noteDate = parseDate(note.date);
         noteDate.setHours(0, 0, 0, 0);
-        
-        // Only show notes that are today or in the past
-        if (noteDate <= today) {
-            const noteIcon = document.createElement('div');
-            noteIcon.className = 'note-icon';
-            noteIcon.style.setProperty('--note-color', note.color);
-            noteIcon.innerHTML = `
-                <span>📝</span>
-                <div class="note-icon-title">${note.title}</div>
-            `;
-            noteIcon.onclick = () => viewNote(note);
-            container.appendChild(noteIcon);
-        }
+        return noteDate <= today && !viewedNotes.has(note.date);
+    });
+
+    jarNotes.forEach(note => {
+        const noteIcon = document.createElement('div');
+        noteIcon.className = 'note-icon';
+        noteIcon.style.setProperty('--note-color', note.color);
+        noteIcon.innerHTML = `
+            <span>📝</span>
+            <div class="note-icon-title">${note.title}</div>
+        `;
+        noteIcon.onclick = () => viewNote(note);
+        container.appendChild(noteIcon);
     });
 }
 
@@ -354,22 +372,15 @@ function renderGallery() {
     const gallery = document.getElementById('galleryGrid');
     gallery.innerHTML = '';
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Show only notes the user has already opened
+    const galleryNotes = allNotes.filter(note => viewedNotes.has(note.date));
     
-    // Get all notes that have been opened (past today or today)
-    const accessibleNotes = allNotes.filter(note => {
-        const noteDate = parseDate(note.date);
-        noteDate.setHours(0, 0, 0, 0);
-        return noteDate <= today;
-    });
-    
-    if (accessibleNotes.length === 0) {
-        gallery.innerHTML = '<div class="gallery-empty">No notes yet. Check back when notes become available! 🎀</div>';
+    if (galleryNotes.length === 0) {
+        gallery.innerHTML = '<div class="gallery-empty">No notes yet. Open a note from the jar to see it here! 🎀</div>';
         return;
     }
     
-    accessibleNotes.forEach(note => {
+    galleryNotes.forEach(note => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
         
@@ -473,12 +484,48 @@ function applyTheme() {
 // ============== DATA MANAGEMENT ==============
 
 function saveNotes() {
+    // Only persist notes that were explicitly added/edited by an admin so the
+    // predefined bundle stays as the single source of truth.  We save all of
+    // allNotes here so that admin edits survive a page reload; on the next
+    // loadNotes() they will be merged back over the predefined defaults.
     localStorage.setItem(NOTES_KEY, JSON.stringify(allNotes));
 }
 
+function saveViewedNotes() {
+    localStorage.setItem(VIEWED_NOTES_KEY, JSON.stringify([...viewedNotes]));
+}
+
 function loadNotes() {
+    // Start with the predefined bundle (same for every visitor).
+    allNotes = PREDEFINED_NOTES.slice();
+
+    // If an admin has customised any notes, overlay those on top.
     const saved = localStorage.getItem(NOTES_KEY);
-    allNotes = saved ? JSON.parse(saved) : [];
+    if (saved) {
+        try {
+            const customNotes = JSON.parse(saved);
+            customNotes.forEach(custom => {
+                const idx = allNotes.findIndex(n => n.date === custom.date);
+                if (idx !== -1) {
+                    allNotes[idx] = custom;   // override predefined note
+                } else {
+                    allNotes.push(custom);    // extra note added by admin
+                }
+            });
+            allNotes.sort((a, b) => new Date(a.date) - new Date(b.date));
+        } catch (e) {
+            // Corrupted data — fall back to predefined notes only.
+            allNotes = PREDEFINED_NOTES.slice();
+        }
+    }
+
+    // Load per-user viewed state.
+    const viewed = localStorage.getItem(VIEWED_NOTES_KEY);
+    try {
+        viewedNotes = viewed ? new Set(JSON.parse(viewed)) : new Set();
+    } catch (e) {
+        viewedNotes = new Set();
+    }
 }
 
 function exportData() {
@@ -498,15 +545,17 @@ function exportData() {
 }
 
 function clearAllData() {
-    if (confirm('Are you ABSOLUTELY sure? This will delete all notes permanently!')) {
+    if (confirm('Are you ABSOLUTELY sure? This will reset all notes to default and clear your viewing history!')) {
         if (confirm('Last chance - this cannot be undone!')) {
             localStorage.removeItem(NOTES_KEY);
-            allNotes = [];
+            localStorage.removeItem(VIEWED_NOTES_KEY);
+            allNotes = PREDEFINED_NOTES.slice();
+            viewedNotes = new Set();
             renderNotes();
             updateNoteStatus();
             renderGallery();
             renderManageNotes();
-            alert('All data cleared');
+            alert('Data cleared — notes reset to defaults');
         }
     }
 }
