@@ -1,12 +1,13 @@
 // Constants
 const CUTOFF_DATE = new Date('2027-01-18');
-const PASSWORD_KEY = 'jar_password';
+const ADMIN_PASSWORD = 'Cougnnf8';
 const NOTES_KEY = 'jar_notes';
 const JAR_COLOR_KEY = 'jar_color';
 const ACCENT_COLOR_KEY = 'accent_color';
 
 let currentViewingNote = null;
 let allNotes = [];
+let isAdminMode = false;
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,66 +18,59 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGallery();
     
     // Set default date in note editor to today
-    document.getElementById('noteDate').valueAsDate = new Date();
-    
-    // Check if password exists
-    const hasPassword = localStorage.getItem(PASSWORD_KEY);
-    if (!hasPassword) {
-        document.getElementById('lockScreen').classList.add('active');
-        document.getElementById('mainScreen').classList.remove('active');
-    } else {
-        document.getElementById('lockScreen').classList.remove('active');
-        document.getElementById('mainScreen').classList.add('active');
-    }
+    setDefaultDate();
     
     // Apply saved theme
     applyTheme();
 });
 
-// ============== PASSWORD & AUTHENTICATION ==============
+function setDefaultDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('noteDate').value = `${year}-${month}-${day}`;
+}
 
-function checkPassword() {
-    const input = document.getElementById('passwordInput').value;
-    const savedPassword = localStorage.getItem(PASSWORD_KEY);
+// ============== ADMIN ACCESS ==============
+
+function openSettingsLock() {
+    document.getElementById('settingsLockModal').classList.add('active');
+    document.getElementById('adminPasswordInput').focus();
+}
+
+function closeSettingsLock() {
+    document.getElementById('settingsLockModal').classList.remove('active');
+    document.getElementById('adminPasswordInput').value = '';
+}
+
+function verifyAdminPassword() {
+    const input = document.getElementById('adminPasswordInput').value;
     
     if (!input) {
         alert('Please enter a password');
         return;
     }
     
-    if (savedPassword && input === savedPassword) {
-        document.getElementById('lockScreen').classList.remove('active');
-        document.getElementById('mainScreen').classList.add('active');
-        document.getElementById('passwordInput').value = '';
-    } else {
-        alert('Incorrect password');
-    }
-}
-
-function setPassword() {
-    const newPassword = document.getElementById('passwordSetting').value;
-    
-    if (!newPassword) {
-        alert('Please enter a password');
-        return;
-    }
-    
-    if (newPassword.length < 4) {
-        alert('Password must be at least 4 characters');
-        return;
-    }
-    
-    localStorage.setItem(PASSWORD_KEY, newPassword);
-    document.getElementById('passwordSetting').value = '';
-    alert('Password saved successfully!');
-}
-
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
+    if (input === ADMIN_PASSWORD) {
+        isAdminMode = true;
+        closeSettingsLock();
         document.getElementById('mainScreen').classList.remove('active');
-        document.getElementById('lockScreen').classList.add('active');
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('passwordInput').focus();
+        document.getElementById('adminSettingsScreen').classList.add('active');
+        loadManageNotes();
+    } else {
+        alert('❌ Incorrect password');
+    }
+}
+
+function exitAdmin() {
+    if (confirm('Exit admin mode?')) {
+        isAdminMode = false;
+        document.getElementById('adminSettingsScreen').classList.remove('active');
+        document.getElementById('mainScreen').classList.add('active');
+        switchTab('jar');
+        renderNotes();
+        renderGallery();
     }
 }
 
@@ -84,12 +78,12 @@ function logout() {
 
 function switchTab(tabName) {
     // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
+    document.querySelectorAll('#mainScreen .tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
     
     // Remove active class from all nav buttons
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('#mainScreen .nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
@@ -97,11 +91,37 @@ function switchTab(tabName) {
     document.getElementById(tabName + 'Tab').classList.add('active');
     
     // Add active class to clicked button
-    event.target.classList.add('active');
+    if (event) {
+        event.target.classList.add('active');
+    }
     
     // Refresh gallery when switching to gallery tab
     if (tabName === 'gallery') {
         renderGallery();
+    }
+}
+
+function switchAdminTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('#adminSettingsScreen .tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all nav buttons
+    document.querySelectorAll('#adminSettingsScreen .nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + 'Tab').classList.add('active');
+    
+    // Add active class to clicked button
+    if (event) {
+        event.target.classList.add('active');
+    }
+    
+    if (tabName === 'manageNotes') {
+        loadManageNotes();
     }
 }
 
@@ -145,44 +165,12 @@ function updateNoteStatus() {
         noteStatusEl.textContent = `✨ Today's note: "${todayNote.title}"`;
         viewTodayBtn.style.display = 'inline-block';
     } else {
-        noteStatusEl.textContent = '📝 No note for today yet. Add one to brighten your day!';
+        noteStatusEl.textContent = '📝 No note for today yet.';
         viewTodayBtn.style.display = 'none';
     }
 }
 
-// ============== NOTE EDITOR ==============
-
-function openNoteEditor() {
-    // Check if cutoff date has passed
-    const today = new Date();
-    if (today > CUTOFF_DATE) {
-        alert('The jar has been sealed as of January 18th, 2027. No new notes can be added.');
-        return;
-    }
-    
-    // Check if note already exists for selected date
-    const selectedDateInput = document.getElementById('noteDate').value;
-    const existingNote = allNotes.find(note => note.date === selectedDateInput);
-    
-    if (existingNote) {
-        if (confirm(`A note already exists for ${selectedDateInput}. Do you want to edit it?`)) {
-            document.getElementById('noteTitle').value = existingNote.title;
-            document.getElementById('noteContent').value = existingNote.content;
-            document.getElementById('noteColor').value = existingNote.color;
-        }
-    } else {
-        // Clear form for new note
-        document.getElementById('noteTitle').value = '';
-        document.getElementById('noteContent').value = '';
-        document.getElementById('noteColor').value = '#FFE5B4';
-    }
-    
-    document.getElementById('noteEditorModal').classList.add('active');
-}
-
-function closeNoteEditor() {
-    document.getElementById('noteEditorModal').classList.remove('active');
-}
+// ============== NOTE EDITOR (ADMIN ONLY) ==============
 
 function saveNote() {
     const date = document.getElementById('noteDate').value;
@@ -199,7 +187,7 @@ function saveNote() {
     // Check cutoff date
     const noteDate = parseDate(date);
     if (noteDate > CUTOFF_DATE) {
-        alert('You cannot add notes after January 18th, 2027');
+        alert('❌ You cannot add notes after January 18th, 2027. The jar will be sealed!');
         return;
     }
     
@@ -235,19 +223,70 @@ function saveNote() {
     renderNotes();
     updateNoteStatus();
     renderGallery();
-    closeNoteEditor();
-    alert('Note saved! 🎉');
+    
+    // Clear form
+    document.getElementById('noteTitle').value = '';
+    document.getElementById('noteContent').value = '';
+    document.getElementById('noteColor').value = '#FFE5B4';
+    setDefaultDate();
+    
+    alert('✅ Note saved! 🎉');
 }
 
-function deleteCurrentNote() {
-    if (confirm('Are you sure you want to delete this note?')) {
-        const dateToDelete = currentViewingNote.date;
-        allNotes = allNotes.filter(note => note.date !== dateToDelete);
+// ============== MANAGE NOTES (ADMIN ONLY) ==============
+
+function loadManageNotes() {
+    const list = document.getElementById('manageNotesList');
+    list.innerHTML = '';
+    
+    if (allNotes.length === 0) {
+        list.innerHTML = '<div class="manage-empty">No notes yet</div>';
+        return;
+    }
+    
+    allNotes.forEach((note, index) => {
+        const item = document.createElement('div');
+        item.className = 'manage-note-item';
+        
+        const noteDate = parseDate(note.date);
+        const dateString = noteDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        item.innerHTML = `
+            <div class="manage-note-info">
+                <div class="manage-note-color" style="background-color: ${note.color}"></div>
+                <div class="manage-note-details">
+                    <div class="manage-note-title">${note.title}</div>
+                    <div class="manage-note-date">${dateString}</div>
+                </div>
+            </div>
+            <div class="manage-note-actions">
+                <button onclick="editNote(${index})" class="btn-icon">✏️</button>
+                <button onclick="deleteNote(${index})" class="btn-icon btn-danger">🗑️</button>
+            </div>
+        `;
+        
+        list.appendChild(item);
+    });
+}
+
+function editNote(index) {
+    const note = allNotes[index];
+    document.getElementById('noteDate').value = note.date;
+    document.getElementById('noteTitle').value = note.title;
+    document.getElementById('noteContent').value = note.content;
+    document.getElementById('noteColor').value = note.color;
+    switchAdminTab('addNote');
+    document.getElementById('noteContent').focus();
+}
+
+function deleteNote(index) {
+    if (confirm(`Delete note "${allNotes[index].title}"?`)) {
+        allNotes.splice(index, 1);
         saveNotes();
         renderNotes();
         updateNoteStatus();
         renderGallery();
-        closeNoteViewer();
+        loadManageNotes();
         alert('Note deleted');
     }
 }
@@ -269,16 +308,16 @@ function viewNote(note) {
     noteDate.setHours(0, 0, 0, 0);
     
     if (noteDate > today) {
-        alert('This note is not available yet. It will be accessible on its date!');
+        alert('This note is not available yet. It will be accessible on its date! 🎁');
         return;
     }
     
     currentViewingNote = note;
     document.getElementById('viewerTitle').textContent = note.title;
     
-    const noteDate = parseDate(note.date);
+    const displayDate = parseDate(note.date);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const dateString = noteDate.toLocaleDateString('en-US', options);
+    const dateString = displayDate.toLocaleDateString('en-US', options);
     document.getElementById('viewerDate').textContent = `📅 ${dateString}`;
     
     document.getElementById('viewerContent').textContent = note.content;
@@ -339,7 +378,7 @@ function renderGallery() {
     });
     
     if (accessibleNotes.length === 0) {
-        gallery.innerHTML = '<div class="gallery-empty">No notes yet. Add one and they\'ll appear here! 🎀</div>';
+        gallery.innerHTML = '<div class="gallery-empty">No notes yet. You\'ll see them here as they become available! 🎀</div>';
         return;
     }
     
@@ -421,17 +460,19 @@ function exportData() {
     link.download = `evelyns-jar-backup-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
+    alert('📥 Data exported successfully!');
 }
 
 function clearAllData() {
-    if (confirm('Are you ABSOLUTELY sure? This will delete all notes permanently!')) {
-        if (confirm('Last chance - this cannot be undone!')) {
+    if (confirm('⚠️ Are you ABSOLUTELY sure? This will delete ALL notes permanently!')) {
+        if (confirm('🚨 Last chance - this cannot be undone!')) {
             localStorage.removeItem(NOTES_KEY);
             allNotes = [];
             renderNotes();
             updateNoteStatus();
             renderGallery();
-            alert('All data cleared');
+            loadManageNotes();
+            alert('🗑️ All data cleared');
         }
     }
 }
@@ -439,33 +480,19 @@ function clearAllData() {
 // ============== KEYBOARD SHORTCUTS ==============
 
 document.addEventListener('keydown', (e) => {
-    // Press Enter in password field to login
-    if (e.key === 'Enter' && document.getElementById('lockScreen').classList.contains('active')) {
-        checkPassword();
+    // Press Enter in admin password field
+    if (e.key === 'Enter' && document.getElementById('settingsLockModal').classList.contains('active')) {
+        verifyAdminPassword();
     }
     
     // Press Escape to close modals
     if (e.key === 'Escape') {
-        document.getElementById('noteEditorModal').classList.remove('active');
         document.getElementById('noteViewerModal').classList.remove('active');
+        document.getElementById('settingsLockModal').classList.remove('active');
     }
 });
 
-// ============== DATE LIMIT INFO ==============
-
-function showCutoffInfo() {
-    const today = new Date();
-    const daysRemaining = Math.ceil((CUTOFF_DATE - today) / (1000 * 60 * 60 * 24));
-    
-    if (daysRemaining > 0) {
-        console.log(`📅 You can add notes until January 18th, 2027 (${daysRemaining} days remaining)`);
-    } else {
-        console.log('🔒 The jar has been sealed. No new notes can be added.');
-    }
-}
-
-// Show cutoff info on load
-showCutoffInfo();
+// ============== AUTO-REFRESH ==============
 
 // Update time every minute for real-time date changes
 setInterval(() => {
