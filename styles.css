@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5d5e3 0%, #f0c5d8 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -28,7 +28,7 @@ body {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5a3d0 0%, #e89fc5 100%);
     border: none;
     color: white;
     font-size: 24px;
@@ -60,7 +60,7 @@ body {
 
 .password-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #f5a3d0;
 }
 
 /* Screen Management */
@@ -91,7 +91,7 @@ body {
 .navbar {
     display: flex;
     gap: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5a3d0 0%, #e89fc5 100%);
     padding: 0;
     border-bottom: 3px solid rgba(0, 0, 0, 0.1);
 }
@@ -114,8 +114,8 @@ body {
 
 .nav-btn.active {
     background: white;
-    color: #667eea;
-    border-bottom: 3px solid #667eea;
+    color: #f5a3d0;
+    border-bottom: 3px solid #f5a3d0;
 }
 
 /* Tab Content */
@@ -156,19 +156,6 @@ body {
     height: 350px;
 }
 
-/* Jar Shadow */
-.jar-shadow {
-    position: absolute;
-    bottom: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 220px;
-    height: 20px;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-    border-radius: 50%;
-    filter: blur(8px);
-}
-
 /* Jar Lid */
 .jar-lid {
     position: absolute;
@@ -183,20 +170,20 @@ body {
 .lid-top {
     width: 200px;
     height: 35px;
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #D4AF37 100%);
+    background: linear-gradient(135deg, #f5a3d0 0%, #f5c8e0 50%, #f5a3d0 100%);
     border-radius: 8px 8px 0 0;
     box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.5),
                 0 4px 10px rgba(0, 0, 0, 0.2);
-    border: 2px solid #B8860B;
+    border: 2px solid #e89fc5;
 }
 
 .lid-text {
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #D4AF37 100%);
+    background: linear-gradient(135deg, #f5a3d0 0%, #f5c8e0 50%, #f5a3d0 100%);
     padding: 8px 15px;
     font-size: 13px;
     font-weight: 500;
-    color: #555;
-    border: 2px solid #B8860B;
+    color: #fff;
+    border: 2px solid #e89fc5;
     line-height: 1.3;
     letter-spacing: 0.3px;
 }
@@ -343,7 +330,7 @@ body {
     text-align: center;
     font-size: 18px;
     font-weight: 600;
-    color: #667eea;
+    color: #f5a3d0;
     margin-bottom: 20px;
 }
 
@@ -353,6 +340,18 @@ body {
     font-size: 14px;
     color: #999;
     margin-bottom: 20px;
+}
+
+/* Note Info */
+.note-info {
+    background: linear-gradient(135deg, rgba(245, 163, 208, 0.1) 0%, rgba(232, 159, 197, 0.1) 100%);
+    border-left: 4px solid #f5a3d0;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #666;
+    font-weight: 500;
 }
 
 /* Action Buttons */
@@ -373,13 +372,13 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5a3d0 0%, #e89fc5 100%);
     color: white;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 15px rgba(245, 163, 208, 0.4);
 }
 
 .btn-primary:active {
@@ -394,7 +393,7 @@ body {
 
 .btn-secondary:hover {
     background: #e8e8e8;
-    border-color: #667eea;
+    border-color: #f5a3d0;
 }
 
 .btn-danger {
@@ -455,7 +454,7 @@ body {
 .gallery-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    border-color: #667eea;
+    border-color: #f5a3d0;
 }
 
 .gallery-item-color {
@@ -518,7 +517,7 @@ body {
 
 .settings-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #f5a3d0;
 }
 
 .color-picker {
@@ -550,8 +549,8 @@ body {
 
 .manage-note-item:hover {
     background: #f5f5f5;
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    border-color: #f5a3d0;
+    box-shadow: 0 4px 12px rgba(245, 163, 208, 0.2);
 }
 
 .manage-note-info {
@@ -706,7 +705,7 @@ body {
 .form-input:focus,
 .form-textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #f5a3d0;
 }
 
 .form-textarea {
@@ -765,10 +764,6 @@ body {
         width: 180px;
     }
 
-    .jar-shadow {
-        width: 170px;
-    }
-
     .modal-content {
         max-width: 95%;
     }
@@ -811,12 +806,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #667eea;
+    background: #f5a3d0;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #764ba2;
+    background: #e89fc5;
 }
 
 /* Print Styles */
